@@ -3,11 +3,17 @@
 	<file source-language="en" datatype="plaintext" original="EXT:ns_t3ai/Resources/Private/Language/locallang_be" date="2023-03-12T06:46:21Z" product-name="ns_t3ai">
 		<header/>
 		<body>
+			<trans-unit id="featureProvider.seo">
+				<source>Default SEO provider (AI Foundation provider identifier, or "default" to inherit AF global default)</source>
+			</trans-unit>
+			<trans-unit id="featureProvider.content">
+				<source>Default Content/RTE provider (AI Foundation provider identifier, or "default" to inherit AF global default)</source>
+			</trans-unit>
 			<trans-unit id="extmng.apiKey">
-				<source>API Key</source>
+				<source>API Key (removed in 15.0.0 — configure providers in AI Foundation)</source>
 			</trans-unit>
 			<trans-unit id="extmng.model">
-				<source>Model</source>
+				<source>Model (removed in 15.0.0 — configure models in AI Foundation)</source>
 			</trans-unit>
 			<trans-unit id="openAiPromptPrefixPageTitle" resname="openAiPromptPrefixPageTitle">
 				<source>Prompt-Prefix for page title suggestions generation: Enter your instruction for generating page title suggestions (IMPORTANT: response must be a bullet point list as the return is processed that way)</source>
@@ -76,7 +82,10 @@
 				<source>Unfortunately, the T3AI API is currently not available. Please try again later.</source>
 			</trans-unit>
 			<trans-unit id="NsT3Ai.missingApiKey" resname="NsT3Ai.missingApiKey">
-				<source>T3AI verification failed. Maybe you haven't saved your API key in the extension configuration yet?</source>
+				<source>T3AI verification failed. Configure and test a provider in AI Foundation (ns_t3af).</source>
+			</trans-unit>
+			<trans-unit id="NsT3Ai.afNotConfigured" resname="NsT3Ai.afNotConfigured">
+				<source>AI Foundation is not ready. Install ns_t3af, add and test a provider, then optionally set SEO/Content default providers in T3AI Free settings.</source>
 			</trans-unit>
 			<trans-unit id="NsT3Ai.exceededQuota" resname="NsT3Ai.exceededQuota">
 				<source>You exceeded your current quota, please check your plan and billing details.</source>
