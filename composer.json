@@ -1,0 +1,64 @@
+{
+    "name": "nitsan/ns-t3ai",
+    "type": "typo3-cms-extension",
+    "version": "14.0.4",
+    "description": "T3AI – TYPO3 AI Integration Extension",
+    "homepage": "https://t3planet.com/t3ai-typo3-extension",
+    "authors": [
+        {
+            "name": "Team T3Planet",
+            "role": "Developer"
+        }
+    ],
+    "license": "GPL-2.0-or-later",
+    "keywords": [
+        "TYPO3",
+        "T3AI",
+        "AI",
+        "TYPO3AI",
+        "openai",
+        "chatgpt",
+        "cloude",
+        "gemini",
+        "SEO",
+        "AIcontent",
+        "AIpages",
+        "AITranslations",
+        "AIchatbot",
+        "AIprompts",
+        "AIimages",
+        "AImedia",
+        "AIgeneration",
+        "AIAssistant",
+        "AIsuggestion",
+        "AIsidebar",
+        "T3AI",
+        "TYPO3KI",
+        "KI"
+    ],
+    "support": {
+        "issues": "https://t3planet.com/support"
+    },
+    "require": {
+        "typo3/cms-core": " ^13 || ^14",
+        "nitsan/ns-license": "^14.5.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "NITSAN\\NsT3Ai\\": "Classes"
+        }
+    },
+    "replace": {
+        "typo3-ter/ns-t3ai": "self.version"
+    },
+    "config": {
+        "vendor-dir": ".Build/vendor",
+        "bin-dir": ".Build/bin"
+    },
+    "extra": {
+        "typo3/cms": {
+            "web-dir": ".Build/public",
+            "extension-key": "ns_t3ai"
+        }
+    }
+}

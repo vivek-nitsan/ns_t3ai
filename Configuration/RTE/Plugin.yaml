@@ -1,0 +1,10 @@
+# Import basic configuration
+imports:
+  - { resource: "EXT:rte_ckeditor/Configuration/RTE/Processing.yaml" }
+  - { resource: "EXT:rte_ckeditor/Configuration/RTE/Editor/Base.yaml" }
+  - { resource: "EXT:rte_ckeditor/Configuration/RTE/Editor/Plugins.yaml" }
+  - { resource: "EXT:rte_ckeditor/Configuration/RTE/Default.yaml" }
+editor:
+  externalPlugins:
+    nst3ai_content:
+      resource: "EXT:ns_t3ai/Resources/Public/JavaScript/Plugins/nst3ai/"
