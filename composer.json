@@ -1,13 +1,15 @@
 {
     "name": "nitsan/ns-t3ai",
     "type": "typo3-cms-extension",
-    "version": "14.0.4",
-    "description": "T3AI – TYPO3 AI Integration Extension",
+    "version": "15.0.0",
+    "description": "T3AI Free \u2013 SEO page-title suggestions and RTE AI powered by AI Foundation (ns_t3af).",
     "homepage": "https://t3planet.com/t3ai-typo3-extension",
     "authors": [
         {
             "name": "Team T3Planet",
-            "role": "Developer"
+            "role": "Developer",
+            "homepage": "https://t3planet.com",
+            "email": "support@t3planet.com"
         }
     ],
     "license": "GPL-2.0-or-later",
@@ -15,33 +17,17 @@
         "TYPO3",
         "T3AI",
         "AI",
-        "TYPO3AI",
-        "openai",
-        "chatgpt",
-        "cloude",
-        "gemini",
         "SEO",
-        "AIcontent",
-        "AIpages",
-        "AITranslations",
-        "AIchatbot",
-        "AIprompts",
-        "AIimages",
-        "AImedia",
-        "AIgeneration",
-        "AIAssistant",
-        "AIsuggestion",
-        "AIsidebar",
-        "T3AI",
-        "TYPO3KI",
-        "KI"
+        "RTE",
+        "AI Foundation"
     ],
-    "support": {
-        "issues": "https://t3planet.com/support"
-    },
     "require": {
-        "typo3/cms-core": " ^13 || ^14",
-        "nitsan/ns-license": "^14.5.4"
+        "php": ">=8.2 <8.6",
+        "typo3/cms-core": "^13.4 || ^14.3",
+        "typo3/cms-backend": "^13.4 || ^14.3",
+        "typo3/cms-rte-ckeditor": "^13.4 || ^14.3",
+        "nitsan/ns-t3af": "^2.0",
+        "nitsan/ns-license": ">=14.5.0"
     },
     "autoload": {
         "psr-4": {
@@ -51,13 +37,8 @@
     "replace": {
         "typo3-ter/ns-t3ai": "self.version"
     },
-    "config": {
-        "vendor-dir": ".Build/vendor",
-        "bin-dir": ".Build/bin"
-    },
     "extra": {
         "typo3/cms": {
-            "web-dir": ".Build/public",
             "extension-key": "ns_t3ai"
         }
     }

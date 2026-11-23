@@ -1,22 +1,21 @@
 <?php
 
 $EM_CONF['ns_t3ai'] = [
-    'title' => 'T3AI – TYPO3 AI Integration Extension',
-    'description' => 'T3AI empowers your TYPO3 backend with advanced AI capabilities including content generation, SEO optimization, media creation, translation, and more using ChatGPT, Gemini, Claude, and Azure AI. Save time and boost productivity with powerful AI tools built directly into your TYPO3 environment.
-    
-    Explore the Live Demo: https://t3-extension-live.t3planet.com/typo3/?TYPO3_AUTOLOGIN_USER=editor-ns-t3ai
-    Product Page, Documentation & Support: https://t3planet.com/t3ai-typo3-extension',
+    'title' => 'T3AI Free – TYPO3 AI (AI Foundation)',
+    'description' => 'Free T3AI: SEO page-title + RTE AI via AI Foundation (ns_t3af). Upgrade to Pro: https://t3planet.com/t3ai-typo3-extension',
     'category' => 'be',
     'author' => 'Team T3Planet',
     'author_email' => 'info@t3planet.de',
     'author_company' => 'T3Planet',
     'state' => 'stable',
     'clearCacheOnLoad' => 0,
-    'version' => '14.0.4',
+    'version' => '15.0.0',
     'constraints' => [
         'depends' => [
-            'typo3' => '13.0.0-14.99.9',
-            'ns_license' => '14.5.4-14.9.99',
+            'typo3' => '13.4.0-14.9.99',
+            'ns_t3af' => '2.0.0-2.99.99',
+            'ns_license' => '14.5.0-14.9.99',
+            'rte_ckeditor' => '13.4.0-14.9.99',
         ],
         'conflicts' => [],
         'suggests' => [],

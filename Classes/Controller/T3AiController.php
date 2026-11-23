@@ -10,7 +10,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use NITSAN\NsT3Ai\Domain\Repository\PageRepository;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
-use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Exception;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Page\PageRenderer;
@@ -105,8 +104,10 @@ class T3AiController
             || strpos($e->getMessage(), 'You need to provide your API key') !== false
             || str_contains($e->getMessage(), 'Incorrect API key')
             || str_contains($e->getMessage(), 'invalid_api_key')
+            || str_contains($e->getMessage(), 'AI Foundation')
+            || str_contains($e->getMessage(), 'No usable provider')
         ) {
-            return $this->jsonErrorResponse($response, 'NsT3Ai.missingApiKey');
+            return $this->jsonErrorResponse($response, 'NsT3Ai.afNotConfigured');
         }
         if (str_contains($e->getMessage(), 'exceeded your current quota')) {
             return $this->jsonErrorResponse($response, 'NsT3Ai.exceededQuota');
@@ -123,8 +124,8 @@ class T3AiController
         if ($e->getCode() === 1737050003) {
             return $this->jsonErrorResponse($response, 'NsT3Ai.invalidField');
         }
-        if ($e->getCode() === 1737050004) {
-            return $this->jsonErrorResponse($response, 'NsT3Ai.missingApiKey');
+        if ($e->getCode() === 1737050004 || $e->getCode() === 1737050005) {
+            return $this->jsonErrorResponse($response, 'NsT3Ai.afNotConfigured');
         }
         return $this->jsonErrorResponse($response, 'NsT3Ai.error');
     }
@@ -308,13 +309,9 @@ class T3AiController
                 $this->assertBackendUserCanEditPage($pageId);
             }
 
-            $extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('ns_t3ai');
-            $configuredModel = (string)($extConf['model'] ?? 'gpt-4o');
-
             $jsonContent = [
                 'prompt' => (string)($parsedBody['prompt'] ?? ''),
                 'max_tokens' => min(max((int)($parsedBody['max_tokens'] ?? 256), 1), self::MAX_TOKENS),
-                'model' => $configuredModel,
                 'temperature' => min(max((float)($parsedBody['temperature'] ?? 0.5), 0.0), 0.9),
                 'top_p' => 1,
                 'n' => min(max((int)($parsedBody['n'] ?? 1), 1), self::MAX_N),

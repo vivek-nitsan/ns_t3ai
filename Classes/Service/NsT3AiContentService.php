@@ -50,9 +50,9 @@ class NsT3AiContentService
      */
     protected UriBuilder $uriBuilder;
 
-    protected bool $nonLegacyModel;
-
     protected int $languageId;
+
+    protected \NITSAN\NsT3Ai\Service\Ai\T3AiCompletionGateway $completionGateway;
 
     /**
      * @param PageRepository $pageRepository
@@ -67,17 +67,17 @@ class NsT3AiContentService
         SiteMatcher $siteMatcher,
         RequestFactory $requestFactory,
         UriBuilder $uriBuilder,
-        bool $nonLegacyModel,
         array $languages,
-        array $extConf
+        array $extConf,
+        \NITSAN\NsT3Ai\Service\Ai\T3AiCompletionGateway $completionGateway
     ) {
         $this->pageRepository = $pageRepository;
         $this->siteMatcher = $siteMatcher;
         $this->requestFactory = $requestFactory;
         $this->languages = $languages;
         $this->extConf = $extConf;
-        $this->nonLegacyModel = $nonLegacyModel;
         $this->uriBuilder = $uriBuilder;
+        $this->completionGateway = $completionGateway;
         $this->languageId = $this->getLanguageId();
     }
 
@@ -103,31 +103,13 @@ class NsT3AiContentService
      */
     public function requestAi(string $content, $extConfPromptPrefix, $extConfReplaceText = '', $languageIsoCode = '', $parsedBody = []): string
     {
-        if (empty($this->extConf['apiKey'])) {
-            throw new Exception('OpenAI API key is not configured', 1737050004);
-        }
-
-        $jsonContent = [
-            'model' => $this->extConf['model'],
-        ];
-        $this->addModelSpecificPrompt($jsonContent, $content, $extConfPromptPrefix, $languageIsoCode, $parsedBody);
-
-        $response = $this->requestFactory->request(
-            $this->nonLegacyModel ? 'https://api.openai.com/v1/chat/completions' : 'https://api.openai.com/v1/completions',
-            'POST',
-            [
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer ' . $this->extConf['apiKey']
-                ],
-                'json' => $jsonContent
-            ]
+        $prompt = $this->buildPrompt($content, $extConfPromptPrefix, $languageIsoCode, is_array($parsedBody) ? $parsedBody : []);
+        $generatedText = $this->completionGateway->completeUserPrompt(
+            $prompt,
+            'seo.page_title',
+            'backend_module',
+            'SEO page title',
         );
-
-        $resJsonBody = $response->getBody()->getContents();
-        $resBody = json_decode($resJsonBody, true);
-        $generatedText = $this->extConf['model'] === 'gpt-4o' || $this->extConf['model'] === 'gpt-4' ?
-            $resBody['choices'][0]['message']['content'] : $resBody['choices'][0]['text'];
         return ltrim(str_replace($extConfReplaceText, '', $generatedText));
     }
 
@@ -201,26 +183,17 @@ class NsT3AiContentService
         }
     }
 
-    protected function addModelSpecificPrompt(array &$jsonContent, string $content, string $extConfPromptPrefix, string $languageIsoCode, array $parsedBody)
+    protected function buildPrompt(string $content, string $extConfPromptPrefix, string $languageIsoCode, array $parsedBody): string
     {
-        if (array_key_exists('prompt', $parsedBody) && $parsedBody['prompt']) {
+        if (!empty($parsedBody['prompt'])) {
             $this->extConf[$extConfPromptPrefix] = $parsedBody['prompt'];
         }
-        if (str_contains($this->extConf[$extConfPromptPrefix], '[Content]')) {
-            $newContent = str_replace('[Content]', $content, $this->extConf[$extConfPromptPrefix]);
-            $finalContent = $newContent . ' in ' . $this->languages[$languageIsoCode];
-        } else {
-            $finalContent = $this->extConf[$extConfPromptPrefix] . ' in ' . $this->languages[$languageIsoCode] . ":\n\n" . trim($content);
+        $prefix = (string)($this->extConf[$extConfPromptPrefix] ?? '');
+        $languageName = $this->languages[$languageIsoCode] ?? $languageIsoCode;
+        if (str_contains($prefix, '[Content]')) {
+            return str_replace('[Content]', $content, $prefix) . ' in ' . $languageName;
         }
-
-        if ($this->extConf['model'] === 'gpt-4o' || $this->extConf['model'] === 'gpt-4') {
-            $jsonContent['messages'][] = [
-                'role' => 'user',
-                'content' => $finalContent
-            ];
-        } else {
-            $jsonContent['prompt'] = $finalContent;
-        }
+        return $prefix . ' in ' . $languageName . ":\n\n" . trim($content);
     }
     
     /**
@@ -427,47 +400,26 @@ class NsT3AiContentService
      * @param array $jsonContent
      * @return array
      */
-
-   public function requestAiForRteContent(array $jsonContent): array
-{
-    if (empty($this->extConf['apiKey'])) {
-        throw new Exception('OpenAI API key is not configured', 1737050004);
-    }
-
-    // Always use the configured model; never trust a client-supplied model name.
-    $requestPayload = [
-        'model' => $this->extConf['model'] ?? ($jsonContent['model'] ?? 'gpt-4o'),
-        'max_tokens' => min(max((int)($jsonContent['max_tokens'] ?? 256), 1), 4000),
-        'temperature' => min(max((float)($jsonContent['temperature'] ?? 0.5), 0.0), 0.9),
-        'top_p' => 1,
-        'n' => min(max((int)($jsonContent['n'] ?? 1), 1), 4),
-        'frequency_penalty' => 0,
-        'presence_penalty' => 0,
-    ];
-
-    if ($this->nonLegacyModel) {
-        $requestPayload['messages'][] = [
-            'role' => 'user',
-            'content' => $jsonContent['prompt'],
-        ];
-        $endpoint = 'https://api.openai.com/v1/chat/completions';
-    } else {
-        $requestPayload['prompt'] = $jsonContent['prompt'];
-        $endpoint = 'https://api.openai.com/v1/completions';
-    }
-
-    $response = $this->requestFactory->request(
-        $endpoint,
-        'POST',
-        [
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $this->extConf['apiKey']
+    public function requestAiForRteContent(array $jsonContent): array
+    {
+        $prompt = trim((string)($jsonContent['prompt'] ?? ''));
+        if ($prompt === '') {
+            throw new Exception('Empty prompt', 1737050002);
+        }
+        $generatedText = $this->completionGateway->completeUserPrompt(
+            $prompt,
+            'rte.generate',
+            'backend_module',
+            'RTE generate',
+        );
+        return [
+            'choices' => [
+                [
+                    'message' => [
+                        'content' => $generatedText,
+                    ],
+                ],
             ],
-            'json' => $requestPayload
-        ]
-    );
-    $resJsonBody = $response->getBody()->getContents();
-    return json_decode($resJsonBody, true);
-}
+        ];
+    }
 }
